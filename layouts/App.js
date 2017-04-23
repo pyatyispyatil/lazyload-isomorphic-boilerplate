@@ -7,9 +7,9 @@ export default ({children}) =>
       border: '2px solid red'
     }}>
       Hello<br/>
-      <a href="/">/</a><br/>
-      <a href="/catalog">catalog</a><br/>
-      <a href="/catalog/page3">page3</a><br/>
+      <Link to="/">/</Link><br/>
+      <Link to="/catalog">catalog</Link><br/>
+      <Link to="/catalog/page3">page3</Link><br/>
       <div>{children}</div>
     </div>
   )
