@@ -79,8 +79,7 @@ function getLazyRoutes(routes, fullPath) {
   initPath.unshift('');
 
   initPath.reduce((children, path) => {
-    const currentRoute = children
-      .find((child) => checkPathNesting(child.path, path));
+    const currentRoute = children.find((child) => checkPathNesting(child.path, path));
 
     if (currentRoute.lazy) {
       lazyRoutes.push(currentRoute);
