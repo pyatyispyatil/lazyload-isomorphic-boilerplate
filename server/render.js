@@ -26,6 +26,10 @@ export const markup = (url, context) => ReactDOM.renderToString(
   </StaticRouter>
 );
 
+const assetUrl = (!process.argv.includes('prod') ? 'http://localhost:8080' : '') + '/static/index.js';
+
+console.log(assetUrl);
+
 export function renderHTML(componentHTML) {
   return `
     <!DOCTYPE html>
@@ -37,6 +41,7 @@ export function renderHTML(componentHTML) {
       </head>
       <body>
         <div id="react-view">${componentHTML}</div>
+        <script src="${assetUrl}" defer></script>
       </body>
     </html>
   `;

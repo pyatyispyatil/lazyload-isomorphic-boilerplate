@@ -1,11 +1,14 @@
-//require('source-map-support').install();
+import path from 'path';
 import express  from 'express';
 import React    from 'react';
-import ReactDOM from 'react-dom/server';
 import {RouterContext, match} from 'react-router';
+import configureStore from './../client/redux/configureStore';
 //import {Provider} from 'react-redux';
 //import configureStore from './redux/configureStore';
 
+import {Provider} from 'react-redux';
+import routes from './routes';
+import ReactDOM from 'react-dom/server';
 import {markup, renderHTML} from './render';
 
 require('source-map-support').install({
@@ -16,10 +19,13 @@ require('source-map-support').install({
 
 const app = express();
 
+app.use('/static', express.static('build/client'));
 
-app.use((req, res) => {
+app.get(/^(?:(?!\/?static)(?:.*))$/, (req, res) => {
   //const store = configureStore();
 
+
+  console.log(req.url);
   const context = {};
 
   const html = markup(req.url, context);
@@ -34,9 +40,6 @@ app.use((req, res) => {
     res.end()
   }
 });
-
-const assetUrl = process.env.NODE_ENV !== 'production' ? 'http://localhost:8050' : '/';
-
 
 const PORT = process.env.PORT || 3001;
 

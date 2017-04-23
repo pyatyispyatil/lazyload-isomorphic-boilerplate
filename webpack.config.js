@@ -6,23 +6,22 @@ var production = process.env.NODE_ENV === 'production';
 var CleanWebpackPlugin = require('clean-webpack-plugin');
 
 
-module.exports = function (env) {
-  const isProd = env && env.prod;
+module.exports = function (env = {}) {
+  const isProd = !!env.prod;
+  const buildType = env.type;
 
   console.log(isProd ? 'Production build' : 'Development build');
+  console.log('Build type: ', buildType);
 
   const plugins = [
-    new CleanWebpackPlugin(['build'], {
+    new CleanWebpackPlugin(['build/' + buildType], {
       root: path.resolve(__dirname, './'),
       verbose: true,
       dry: false
-    }),
-    new webpack.optimize.MinChunkSizePlugin({
-      minChunkSize: 51200 // ~50kb
     })
   ];
 
-  if (isProd) {
+  if (isProd && buildType !== 'server') {
     plugins.push(
       new webpack.optimize.UglifyJsPlugin({
         mangle: false,
@@ -40,25 +39,71 @@ module.exports = function (env) {
       }));
   }
 
-  let entryPoints = ['babel-polyfill', path.resolve(__dirname, './src/js/app.js')];
+  let entry, target, rules = [];
 
-  if (!isProd) {
-    entryPoints.unshift("webpack-dev-server/client?http://localhost:8080/");
+  if (buildType === 'server') {
+    entry = {server: ['./server/index.js']};
+    target = 'node';
+
+    rules = rules.concat([{
+      test: /\.js$/,
+      exclude: /(node_modules)/,
+      use: {
+        loader: 'babel-loader'
+      }
+    }]);
+  } else {
+    entry = {client: ['babel-polyfill', './client/index.js']};
+    target = 'web';
+
+    rules = rules.concat([{
+      test: /\.js$/,
+      exclude: /(pages|node_modules)/,
+      use: {
+        loader: 'babel-loader'
+      }
+    }, {
+      test: /\.js$/,
+      include: /pages/,
+      exclude: /node_modules/,
+      use: [
+        {loader: 'bundle-loader', options: {lazy: true}},
+        {loader: 'babel-loader'}
+      ]
+    }]);
   }
 
+  rules = rules.concat([{
+    test: /.(png|woff(2)?|eot|ttf|svg|gif)$/,
+    use: {loader: 'url-loader?limit=100000'}
+  }, {
+    test: /\.scss$/,
+    use: [
+      {loader: "style-loader"},
+      {loader: "css-loader" + (isProd ? '?sourceMap' : '')},
+      {
+        loader: "postcss-loader",
+        options: {
+          plugins: () => [precss, autoprefixer]
+        }
+      },
+      {loader: "sass-loader" + (isProd ? '?sourceMap' : '')}
+    ]
+  }, {
+    test: /\.json$/,
+    use: [{loader: 'json-loader'}]
+  }]);
+
   let config = {
-    entry: {
-      client: ['babel-polyfill', './client/index.js'],
-      server: ['./server/index.js']
-    },
+    entry,
     output: {
-      path: path.join(__dirname, './build'),
-      filename: '[name].js',
+      path: path.join(__dirname, './build/' + buildType),
+      filename: 'index.js',
       chunkFilename: '[name]-[chunkhash].js',
-      publicPath: '/build',
+      publicPath: '/static/',
     },
     devServer: {
-      contentBase: path.resolve(__dirname, "build"),
+      contentBase: path.resolve(__dirname, './build/' + buildType),
       inline: !isProd
     },
     stats: {
@@ -69,42 +114,10 @@ module.exports = function (env) {
     },
     cache: true,
     module: {
-      rules: [{
-        test: /\.js$/,
-        include: /(server*)|(components*)/,
-        use: {
-          loader: 'babel-loader'
-        }
-      }, {
-        test: /src[\\|\/]app[\\|\/]root.*?\.js/,
-        exclude: /(node_modules|core-js)/,
-        use: [
-          {loader: 'bundle-loader', options: {lazy: true}},
-          {loader: 'babel-loader'}
-        ]
-      }, {
-        test: /.(png|woff(2)?|eot|ttf|svg|gif)$/,
-        use: {loader: 'url-loader?limit=100000'}
-      }, {
-        test: /\.scss$/,
-        use: [
-          {loader: "style-loader"},
-          {loader: "css-loader" + (isProd ? '?sourceMap' : '')},
-          {
-            loader: "postcss-loader",
-            options: {
-              plugins: () => [precss, autoprefixer]
-            }
-          },
-          {loader: "sass-loader" + (isProd ? '?sourceMap' : '')}
-        ]
-      }, {
-        test: /\.json$/,
-        use: [{loader: 'json-loader'}]
-      }]
+      rules
     },
-    plugins: plugins,
-    target: 'node'
+    plugins,
+    target
   };
 
   if (!isProd) {

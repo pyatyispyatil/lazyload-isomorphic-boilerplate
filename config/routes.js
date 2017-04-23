@@ -1,4 +1,5 @@
-import App from './../components/app';
+import App from '../layouts/App';
+import Catalog from '../layouts/Catalog';
 
 export default [
   {
@@ -6,8 +7,8 @@ export default [
     component: App,
     children: [
       {
-        path: 'page1',
-        component: App,
+        path: 'catalog',
+        component: Catalog,
         children: [
           {
             path: 'page3',
