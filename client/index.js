@@ -13,25 +13,37 @@ function lazyLoadComponent(lazyModule, field = "default") {
 
 class Loader extends Component {
   state = {
-    loaded: false,
-    component: null
+    module: null
   };
 
-  componentDidMount() {
-    this.props.component((module) =>
-      this.setState({component: module.default, loaded: true})
+  componentWillMount() {
+    this.load(this.props)
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.load !== this.props.load) {
+      this.load(nextProps)
+    }
+  }
+
+  load(props) {
+    this.setState({
+        module: null
+      },
+      () => props.load((module) => {
+        this.setState({
+          module: module.default ? module.default : module
+        })
+      })
     );
   }
 
+  renderSpinner() {
+    return <div>Loading...</div>
+  }
+
   render() {
-    return this.state.loaded ? (
-      this.state.component({
-        ...this.props.routeProps,
-        children: makeRoutes(this.props.routeChildren, this.props.path)
-      })
-    ) : (
-      <div>...loading</div>
-    )
+    return this.props.children(this.state.module) || this.renderSpinner();
   }
 }
 
@@ -41,12 +53,13 @@ function makeRoutes(routesConfig = [], parentPath = '') {
       path={`${parentPath}${path}`}
       component={(props) =>
         lazy ? (
-          <Loader
-            routeProps={props}
-            component={component}
-            routeChildren={children}
-            path={`${parentPath}${path}/`}
-          />
+          <Loader load={component}>
+            {(module) => module ? (
+              module({props, children: makeRoutes(children, `${parentPath}${path}/`)})
+            ) : (
+              null
+            )}
+          </Loader>
         ) : (
           component({props, children: makeRoutes(children, `${parentPath}${path}/`)})
         )
@@ -54,34 +67,6 @@ function makeRoutes(routesConfig = [], parentPath = '') {
     />
   ))
 }
-
-//
-// function makeRoutes(routesConfig = [], parentPath = '') {
-//   return routesConfig.map(({path, component, children}) => (
-//     parentPath ? (
-//       <Route
-//         path={`${parentPath}${path}`}
-//         getComponent={(location, cb) =>
-//           component((module) =>
-//             cb(null, (...props) =>
-//               module.default({
-//                 ...props,
-//                 children: makeRoutes(children, `${parentPath}${path}/`)
-//               })
-//             )
-//           )
-//         }
-//       />
-//     ) : (
-//       <Route
-//         path={`${parentPath}${path}`}
-//         component={(...props) =>
-//           component({...props, children: makeRoutes(children, `${parentPath}${path}/`)})
-//         }
-//       />
-//     )
-//   ))
-// }
 
 
 const initLazyRoutes = [];
