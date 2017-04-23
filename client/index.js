@@ -1,9 +1,12 @@
+// @flow
+
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 import {Route} from 'react-router';
 import {BrowserRouter} from 'react-router-dom';
 
-import routes from './../config/routes';
+import type {MixedRoute, Module} from './../config/routes';
+import {routes} from './../config/routes';
 
 function lazyLoadComponent(lazyModule, field = "default") {
   return (location, cb) => {
@@ -72,39 +75,44 @@ function checkPathNesting(pattern, path) {
   return pattern.indexOf(pattern.indexOf('/') > -1 ? path + '/' : path) === 0
 }
 
-function getLazyRoutes(routes, fullPath) {
-  const initPath = fullPath.split('/').filter(Boolean);
-  const lazyRoutes = [];
+function getLazyRoutes(routes: Array<MixedRoute>, fullPath: string) {
+  const initPath: Array<string> = fullPath.split('/').filter(Boolean);
+  const lazyRoutes: Array<MixedRoute> = [];
 
   initPath.unshift('');
 
   initPath.reduce((children, path) => {
     const currentRoute = children.find((child) => checkPathNesting(child.path, path));
 
-    if (currentRoute.lazy) {
-      lazyRoutes.push(currentRoute);
-    }
+    if (currentRoute) {
+      if (currentRoute.lazy) {
+        lazyRoutes.push(currentRoute);
+      }
 
-    return currentRoute.children;
+      return currentRoute.children || [];
+    } else {
+      return [];
+    }
   }, routes);
 
   return lazyRoutes;
 }
 
-function loadLazyRoutes(lazyRoutes, cb) {
-  lazyRoutes.forEach((route) => {
-    route.component((module) => {
+
+function loadLazyRoutes(lazyRoutes: Array<MixedRoute>, cb: () => any) {
+  lazyRoutes.forEach((route: MixedRoute) => {
+    route.component((module: Module) => {
       route.lazy = false;
       route.component = module.default;
 
-      if (lazyRoutes.every((route) => !route.lazy)) {
+      if (lazyRoutes.every((route: MixedRoute) => !route.lazy)) {
         cb();
       }
     })
   })
 }
 
-const lazyRoutes = getLazyRoutes(routes, location.pathname);
+const lazyRoutes: Array<MixedRoute> = getLazyRoutes(routes, location.pathname);
 
 if (lazyRoutes.length) {
   loadLazyRoutes(lazyRoutes, render);
