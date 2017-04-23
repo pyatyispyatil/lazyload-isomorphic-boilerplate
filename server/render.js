@@ -30,7 +30,7 @@ const assetUrl = (!process.argv.includes('prod') ? 'http://localhost:8080' : '')
 
 console.log(assetUrl);
 
-export function renderHTML(componentHTML) {
+export function renderHTML(componentHTML = '') {
   return `
     <!DOCTYPE html>
       <html>

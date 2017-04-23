@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev-server-client": "webpack-dev-server --env.type=client --watch",
+    "dev-server-client": "webpack-dev-server --env.type=client --env.devServer --watch",
     "build:server": "webpack --env.type=server",
     "build:client": "webpack --env.type=client",
     "build:server-prod": "webpack --env.type=server --env.prod",

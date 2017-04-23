@@ -1,5 +1,5 @@
 import App from '../layouts/App';
-import Catalog from '../layouts/Catalog';
+import Catalog from '../pages/Catalog';
 
 export default [
   {
@@ -9,6 +9,7 @@ export default [
       {
         path: 'catalog',
         component: Catalog,
+        lazy: true,
         children: [
           {
             path: 'page3',

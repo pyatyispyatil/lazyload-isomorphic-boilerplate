@@ -9,6 +9,7 @@ var CleanWebpackPlugin = require('clean-webpack-plugin');
 module.exports = function (env = {}) {
   const isProd = !!env.prod;
   const buildType = env.type;
+  const devServer = !!env.devServer;
 
   console.log(isProd ? 'Production build' : 'Development build');
   console.log('Build type: ', buildType);
@@ -100,7 +101,7 @@ module.exports = function (env = {}) {
       path: path.join(__dirname, './build/' + buildType),
       filename: 'index.js',
       chunkFilename: '[name]-[chunkhash].js',
-      publicPath: '/static/',
+      publicPath: devServer ? 'http://localhost:8080/static/' : '/static/',
     },
     devServer: {
       contentBase: path.resolve(__dirname, './build/' + buildType),
