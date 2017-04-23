@@ -68,35 +68,47 @@ function makeRoutes(routesConfig = [], parentPath = '') {
   ))
 }
 
-
-const initLazyRoutes = [];
-const initPath = location.pathname.split('/').filter(Boolean);
-initPath.unshift('');
-
-if (initPath.length) {
-  initPath.reduce((route, path) => {
-    const currentRoute = (Array.isArray(route) ? route : route.children)
-      .find((child) => child.path === path);
-
-    if (currentRoute && currentRoute.lazy) {
-      initLazyRoutes.push(currentRoute);
-    }
-
-    return currentRoute;
-  }, routes);
+function checkPathNesting(pattern, path) {
+  return pattern.indexOf(pattern.indexOf('/') > -1 ? path + '/' : path) === 0
 }
 
-if (initLazyRoutes.length) {
-  initLazyRoutes.forEach((route) => {
+function getLazyRoutes(routes, fullPath) {
+  const initPath = fullPath.split('/').filter(Boolean);
+  const lazyRoutes = [];
+
+  initPath.unshift('');
+
+  initPath.reduce((children, path) => {
+    const currentRoute = children
+      .find((child) => checkPathNesting(child.path, path));
+
+    if (currentRoute.lazy) {
+      lazyRoutes.push(currentRoute);
+    }
+
+    return currentRoute.children;
+  }, routes);
+
+  return lazyRoutes;
+}
+
+function loadLazyRoutes(lazyRoutes, cb) {
+  lazyRoutes.forEach((route) => {
     route.component((module) => {
       route.lazy = false;
       route.component = module.default;
 
-      if (initLazyRoutes.every((route) => !route.lazy)) {
-        render();
+      if (lazyRoutes.every((route) => !route.lazy)) {
+        cb();
       }
     })
   })
+}
+
+const lazyRoutes = getLazyRoutes(routes, location.pathname);
+
+if (lazyRoutes.length) {
+  loadLazyRoutes(lazyRoutes, render);
 } else {
   render();
 }
