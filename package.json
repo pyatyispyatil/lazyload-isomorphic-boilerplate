@@ -9,8 +9,8 @@
     "build:client": "webpack --env.type=client",
     "build:server-prod": "npm run flow && webpack --env.type=server --env.prod",
     "build:client-prod": "npm run flow && webpack --env.type=client --env.prod",
-    "build-prod": "npm run build:server-prod npm run build:client-prod",
-    "build": "npm run build:server npm run build:client",
+    "build-prod": "npm run build:server-prod && npm run build:client-prod",
+    "build": "npm run build:server && npm run build:client",
     "start": "node build/server prod",
     "start-dev": "node build/server",
     "flow": "flow"
