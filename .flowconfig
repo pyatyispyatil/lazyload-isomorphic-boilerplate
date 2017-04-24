@@ -1,4 +1,6 @@
 [ignore]
+<PROJECT_ROOT>/build/.*
+<PROJECT_ROOT>/node_modules/.*
 
 [include]
 
