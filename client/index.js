@@ -2,8 +2,14 @@ import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 import {Route} from 'react-router';
 import {BrowserRouter} from 'react-router-dom';
+import {} from 'react-router-redux';
+import {Provider} from 'react-redux';
 
 import routes from './../config/routes';
+
+import {store} from './store/configureStore';
+
+window.store = store;
 
 function lazyLoadComponent(lazyModule, field = "default") {
   return (location, cb) => {
@@ -55,7 +61,7 @@ function makeRoutes(routesConfig = [], parentPath = '') {
         lazy ? (
           <Loader load={component}>
             {(module) => module ? (
-              module({props, children: makeRoutes(children, `${parentPath}${path}/`)})
+              ((Module) => (<Module {...props}>{makeRoutes(children, `${parentPath}${path}/`)}</Module>))(module)
             ) : (
               null
             )}
@@ -106,20 +112,22 @@ function loadLazyRoutes(lazyRoutes, cb) {
 
 const lazyRoutes = getLazyRoutes(routes, location.pathname);
 
+function render() {
+  ReactDOM.render(
+    <Provider store={store}>
+      <BrowserRouter
+        basename={'/'}
+        forceRefresh={false}
+      >
+        {makeRoutes(routes)[0]}
+      </BrowserRouter>
+    </Provider>,
+    document.getElementById('react-view')
+  );
+}
+
 if (lazyRoutes.length) {
   loadLazyRoutes(lazyRoutes, render);
 } else {
   render();
-}
-
-function render() {
-  ReactDOM.render(
-    <BrowserRouter
-      basename={'/'}
-      forceRefresh={false}
-    >
-      {makeRoutes(routes)[0]}
-    </BrowserRouter>,
-    document.getElementById('react-view')
-  );
 }
