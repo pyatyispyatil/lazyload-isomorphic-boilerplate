@@ -1,10 +1,9 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
-import {action} from '../client/actions/voteActions';
+import {action} from '../actions/voteActions';
 
 class Vote extends Component {
   render() {
-    console.log('Vote Props:', this.props);
     return (
       <div>
         <div style={{
@@ -25,7 +24,6 @@ class Vote extends Component {
 export default connect(
   (state) => state,
   (dispatch) => {
-    console.log(dispatch);
     return ({
       onIncrement: () => dispatch({type: action.INCREMENT}),
       onDecrement: () => dispatch({type: action.DECREMENT}),

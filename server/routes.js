@@ -7,7 +7,7 @@ function makeRoutes(routesConfig = [], parentPath = '') {
     <Route
       path={`${parentPath}${path}`}
       component={(...props) =>
-        component({...props, children: makeRoutes(children, `${parentPath}${path}/`)})
+        ((Component) => <Component {...props}>{makeRoutes(children, `${parentPath}${path}/`)}</Component>)(component)
       }
     />
   ))

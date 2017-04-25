@@ -1,5 +1,6 @@
 import express  from 'express';
 import React    from 'react';
+import configureStore from '../stores/configureStore';
 
 import {markup, renderHTML} from './render';
 
@@ -14,13 +15,12 @@ const app = express();
 app.use('/static', express.static('build/client'));
 
 app.get(/^(?:(?!\/?static)(?:.*))$/, (req, res) => {
-  //const store = configureStore();
-
-
-  console.log(req.url);
   const context = {};
+  const store = configureStore();
 
-  const html = markup(req.url, context);
+  store.dispatch({type: '++'});
+
+  const html = markup(req.url, context, store);
 
   if (context.url) {
     res.writeHead(301, {
@@ -28,7 +28,7 @@ app.get(/^(?:(?!\/?static)(?:.*))$/, (req, res) => {
     });
     res.end()
   } else {
-    res.write(renderHTML(html));
+    res.write(renderHTML(html, store.getState()));
     res.end()
   }
 });

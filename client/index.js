@@ -1,15 +1,13 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
-import {Route} from 'react-router';
-import {BrowserRouter} from 'react-router-dom';
-import {} from 'react-router-redux';
+import {Route, Router} from 'react-router';
 import {Provider} from 'react-redux';
+
+import history from './history';
 
 import routes from './../config/routes';
 
-import {store} from './store/configureStore';
-
-window.store = store;
+import store from './stores/store';
 
 function lazyLoadComponent(lazyModule, field = "default") {
   return (location, cb) => {
@@ -67,7 +65,7 @@ function makeRoutes(routesConfig = [], parentPath = '') {
             )}
           </Loader>
         ) : (
-          component({props, children: makeRoutes(children, `${parentPath}${path}/`)})
+          ((Component) => (<Component {...props}>{makeRoutes(children, `${parentPath}${path}/`)}</Component>))(component)
         )
       }
     />
@@ -115,12 +113,9 @@ const lazyRoutes = getLazyRoutes(routes, location.pathname);
 function render() {
   ReactDOM.render(
     <Provider store={store}>
-      <BrowserRouter
-        basename={'/'}
-        forceRefresh={false}
-      >
+      <Router history={history}>
         {makeRoutes(routes)[0]}
-      </BrowserRouter>
+      </Router>
     </Provider>,
     document.getElementById('react-view')
   );
