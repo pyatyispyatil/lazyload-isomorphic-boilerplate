@@ -13,4 +13,4 @@ function makeRoutes(routesConfig = [], parentPath = '') {
   ))
 }
 
-export default makeRoutes(routes)[0];
+export default makeRoutes(routes);

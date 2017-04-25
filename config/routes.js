@@ -1,4 +1,4 @@
-import App from '../layouts/App';
+import App from '../root/App';
 import Catalog from '../pages/Catalog';
 import VoteContainer from './../pages/Vote';
 

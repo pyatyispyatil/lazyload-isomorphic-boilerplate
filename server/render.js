@@ -11,7 +11,9 @@ export const markup = (url, context, store) => ReactDOM.renderToString(
       location={url}
       context={context}
     >
-      {routes}
+      <div>
+        {routes}
+      </div>
     </StaticRouter>
   </Provider>
 );
