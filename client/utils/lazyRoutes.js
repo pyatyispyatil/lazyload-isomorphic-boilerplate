@@ -17,11 +17,11 @@ function getLazyRoutes(routes, fullPath) {
   initPath.reduce((children, path) => {
     const currentRoute = children.find((child) => checkPathNesting(path, child.path));
 
-    if (currentRoute.lazy) {
+    if (currentRoute && currentRoute.lazy) {
       lazyRoutes.push(currentRoute);
     }
 
-    return currentRoute.children;
+    return currentRoute ? currentRoute.children : [];
   }, routes);
 
   return lazyRoutes;
@@ -49,16 +49,16 @@ export function makeRoutes(routes = [], parentPath = '') {
   ))
 }
 
+//ToDo: don't mutate the routes
 export function initLazyRoutes(routes, path, cb) {
   Promise.all(
     getLazyRoutes(routes, path)
-      .map((route) => new Promise((resolve) => route.component(resolve)))
+      .map((route) => new Promise((resolve) => route.component((module) => resolve({module, route}))))
     )
-    .then((modules) => {
-      routes.forEach((route, index) => {
-        route.component = modules[index].default;
+    .then((data) => data.forEach(({route, module}) => {
+        route.component = module.default || module;
         route.lazy = false;
       })
-    })
+    )
     .then(cb);
 }
