@@ -18,7 +18,7 @@ app.get(/^(?:(?!\/?static)(?:.*))$/, (req, res) => {
   const context = {};
   const store = configureStore();
 
-  store.dispatch({type: '++'});
+  store.dispatch({type: 'INCREMENT'});
 
   const html = markup(req.url, context, store);
 

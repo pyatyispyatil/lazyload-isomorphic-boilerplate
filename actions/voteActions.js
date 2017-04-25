@@ -1,7 +1,7 @@
 export const action = {
-  INCREMENT: '++',
-  DECREMENT: '--',
-  RESET: '0'
+  INCREMENT: 'INCREMENT',
+  DECREMENT: 'DECREMENT',
+  RESET: 'RESET'
 };
 
 export function increment(vote) {

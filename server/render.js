@@ -1,22 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/server';
-import {Route, Redirect, StaticRouter} from 'react-router';
+import {StaticRouter} from 'react-router';
 import {Provider} from 'react-redux';
 
 import routes from './routes';
-
-export const RedirectWithStatus = ({from, to, status}) => (
-  <Route render={({staticContext}) => {
-    // there is no `staticContext` on the client, so
-    // we need to guard against that here
-    if (staticContext) {
-      staticContext.status = status;
-    }
-
-    return <Redirect from={from} to={to}/>
-  }}/>
-);
-
 
 export const markup = (url, context, store) => ReactDOM.renderToString(
   <Provider store={store}>
@@ -31,7 +18,7 @@ export const markup = (url, context, store) => ReactDOM.renderToString(
 
 const assetUrl = (!process.argv.includes('prod') ? 'http://localhost:8080' : '') + '/static/index.js';
 
-console.log(assetUrl);
+console.log('Client-side js will receive from:', assetUrl);
 
 export function renderHTML(componentHTML = '', initialState) {
   return `
