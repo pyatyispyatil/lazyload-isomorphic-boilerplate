@@ -9,7 +9,7 @@ export default ({children}) =>
       Hello<br/>
       <Link to="/">/</Link><br/>
       <Link to="/catalog">catalog</Link><br/>
-      <Link to="/catalog/page3">page3</Link><br/>
+      <Link to="/catalog/vote">vote</Link><br/>
       <div>{children}</div>
     </div>
   )
