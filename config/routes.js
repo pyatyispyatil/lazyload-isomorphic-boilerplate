@@ -4,16 +4,23 @@ import Catalog from '../pages/Catalog';
 import VoteContainer from './../pages/Vote';
 
 
-export type Module = {[string]: () => any} | () => any;
-
-export type StaticRoute = {|
+type LazyRoute = {|
   path: string,
-  component: Module | (cb: (module: Module) => void) => void,
+  component: React$Element<*>,
   children?: RoutesArray,
-  lazy?: boolean
+  lazy?: false
 |}
 
-export type RoutesArray = Array<StaticRoute>;
+type NormalRoute = {|
+  path: string,
+  component: (module: { [mixed]: React$Component<*, *, *> }) => void,
+  children?: RoutesArray,
+  lazy: true
+|}
+
+export type StaticRoute = NormalRoute | LazyRoute;
+
+export type RoutesArray = StaticRoute[];
 
 export const routes: RoutesArray = [
   {

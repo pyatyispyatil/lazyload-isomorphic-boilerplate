@@ -24,4 +24,3 @@ function render() {
 }
 
 initLazyRoutes(routes, window.location.pathname, render);
-

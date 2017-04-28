@@ -1,26 +1,40 @@
+// @flow
 import React, {Component} from 'react';
 
+
+export type ImportedModule = React$Component<*, *, *> | { [mixed]: React$Component<*> } | null;
+
+type LoaderProps = {
+  load: (cb: (module: { [mixed]: React$Component<*, *, *> }) => void) => void,
+  children: (module: ImportedModule) => React$Element<*>
+};
 
 export default class Loader extends Component {
   state = {
     module: null
   };
 
+  state: {
+    module: ImportedModule
+  };
+
+  props: LoaderProps;
+
   componentWillMount() {
-    this.load(this.props)
+    this.load(this.props);
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: LoaderProps) {
     if (nextProps.load !== this.props.load) {
-      this.load(nextProps)
+      this.load(nextProps);
     }
   }
 
-  load(props) {
+  load(loaderProps: LoaderProps) {
     this.setState({
         module: null
       },
-      () => props.load((module) => {
+      () => loaderProps.load((module: { [mixed]: React$Component<*, *, *> }) => {
         this.setState({
           module: module.default ? module.default : module
         })
@@ -32,7 +46,7 @@ export default class Loader extends Component {
     return <div>Loading...</div>
   }
 
-  render() {
+  render(): React$Element<*> {
     return this.props.children(this.state.module) || this.renderSpinner();
   }
 }
