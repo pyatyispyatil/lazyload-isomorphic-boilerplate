@@ -1,6 +1,6 @@
 import React from 'react';
 import {Route} from 'react-router';
-import routes from './../config/routes';
+import {routes} from './../config/routes';
 
 function makeRoutes(routesConfig = [], parentPath = '') {
   return routesConfig.map(({path, component, children}) => (

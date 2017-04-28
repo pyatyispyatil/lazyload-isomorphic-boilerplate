@@ -81,14 +81,14 @@ module.exports = function (env = {}) {
     test: /\.scss$/,
     use: [
       {loader: "style-loader"},
-      {loader: "css-loader" + (isProd ? '?sourceMap' : '')},
+      {loader: "css-loader" + (!isProd ? '?sourceMap' : '')},
       {
         loader: "postcss-loader",
         options: {
           plugins: () => [precss, autoprefixer]
         }
       },
-      {loader: "sass-loader" + (isProd ? '?sourceMap' : '')}
+      {loader: "sass-loader" + (!isProd ? '?sourceMap' : '')}
     ]
   }, {
     test: /\.json$/,

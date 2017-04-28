@@ -1,33 +1,35 @@
+// @flow
 import React from 'react';
 import {Route} from 'react-router';
 
 import Loader from './../components/Loader';
 
+import type {RoutesArray, StaticRoute} from './../../config/routes';
 
-function checkPathNesting(path, pattern) {
+function checkPathNesting(path: string, pattern: string) {
   return pattern.indexOf(pattern.indexOf('/') > -1 ? path + '/' : path) === 0
 }
 
-function getLazyRoutes(routes, fullPath) {
-  const initPath = fullPath.split('/').filter(Boolean);
-  const lazyRoutes = [];
+function getLazyRoutes(routes: RoutesArray, fullPath: string): RoutesArray {
+  const initPath: Array<string> = fullPath.split('/').filter(Boolean);
+  const lazyRoutes: RoutesArray = [];
 
   initPath.unshift('');
 
-  initPath.reduce((children, path) => {
-    const currentRoute = children.find((child) => checkPathNesting(path, child.path));
+  initPath.reduce((children: RoutesArray, path: string) => {
+    const currentRoute: ?StaticRoute = children.find((child) => checkPathNesting(path, child.path));
 
     if (currentRoute && currentRoute.lazy) {
       lazyRoutes.push(currentRoute);
     }
 
-    return currentRoute ? currentRoute.children : [];
+    return currentRoute ? currentRoute.children || [] : [];
   }, routes);
 
   return lazyRoutes;
 }
 
-export function makeRoutes(routes = [], parentPath = '') {
+export function makeRoutes(routes: RoutesArray = [], parentPath: string = ''): Route[] {
   return routes.map(({path, component, children, lazy}) => (
     <Route
       path={`${parentPath}${path}`}
@@ -50,10 +52,10 @@ export function makeRoutes(routes = [], parentPath = '') {
 }
 
 //ToDo: don't mutate the routes
-export function initLazyRoutes(routes, path, cb) {
+export function initLazyRoutes(routes: RoutesArray, path: string, cb: () => any) {
   Promise.all(
     getLazyRoutes(routes, path)
-      .map((route) => new Promise((resolve) => route.component((module) => resolve({module, route}))))
+      .map((route: StaticRoute) => new Promise((resolve) => route.component((module) => resolve({module, route}))))
     )
     .then((data) => data.forEach(({route, module}) => {
         route.component = module.default || module;

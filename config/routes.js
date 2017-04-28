@@ -1,3 +1,4 @@
+// @flow
 import App from '../root/App';
 import Catalog from '../pages/Catalog';
 import VoteContainer from './../pages/Vote';
@@ -5,24 +6,16 @@ import VoteContainer from './../pages/Vote';
 
 export type Module = {[string]: () => any} | () => any;
 
-type Route = {
+export type StaticRoute = {|
   path: string,
-  children?: Array<StaticRoute>
-}
+  component: Module | (cb: (module: Module) => void) => void,
+  children?: RoutesArray,
+  lazy?: boolean
+|}
 
-export type StaticRoute = Route & {
-  component: Module,
-  lazy?: false
-}
+export type RoutesArray = Array<StaticRoute>;
 
-export type LazyRoute = Route & {
-  component: (cb: (module: Module) => void) => void,
-  lazy: true
-}
-
-export type MixedRoute = LazyRoute | StaticRoute;
-
-export const routes: Array<MixedRoute> = [
+export const routes: RoutesArray = [
   {
     path: '',
     component: App,
