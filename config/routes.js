@@ -1,7 +1,6 @@
-// @flow
-
-import App from '../layouts/App';
+import App from '../root/App';
 import Catalog from '../pages/Catalog';
+import VoteContainer from './../pages/Vote';
 
 
 export type Module = {[string]: () => any} | () => any;
@@ -34,8 +33,9 @@ export const routes: Array<MixedRoute> = [
         lazy: true,
         children: [
           {
-            path: 'page3',
-            component: App
+            path: 'vote',
+            component: VoteContainer,
+            lazy: true
           }
         ]
       },

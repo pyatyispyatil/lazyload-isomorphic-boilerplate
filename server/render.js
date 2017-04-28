@@ -1,36 +1,28 @@
 import React from 'react';
 import ReactDOM from 'react-dom/server';
-import {Route, Redirect, StaticRouter} from 'react-router';
+import {StaticRouter} from 'react-router';
+import {Provider} from 'react-redux';
 
 import routes from './routes';
 
-export const RedirectWithStatus = ({ from, to, status }) => (
-  <Route render={({ staticContext }) => {
-    // there is no `staticContext` on the client, so
-    // we need to guard against that here
-    if (staticContext) {
-      staticContext.status = status;
-    }
-
-    return <Redirect from={from} to={to}/>
-  }}/>
-);
-
-
-export const markup = (url, context) => ReactDOM.renderToString(
-  <StaticRouter
-    location={url}
-    context={context}
-  >
-    {routes}
-  </StaticRouter>
+export const markup = (url, context, store) => ReactDOM.renderToString(
+  <Provider store={store}>
+    <StaticRouter
+      location={url}
+      context={context}
+    >
+      <div>
+        {routes}
+      </div>
+    </StaticRouter>
+  </Provider>
 );
 
 const assetUrl = (!process.argv.includes('prod') ? 'http://localhost:8080' : '') + '/static/index.js';
 
-console.log(assetUrl);
+console.log('Client-side js will receive from:', assetUrl);
 
-export function renderHTML(componentHTML = '') {
+export function renderHTML(componentHTML = '', initialState) {
   return `
     <!DOCTYPE html>
       <html>
@@ -41,6 +33,9 @@ export function renderHTML(componentHTML = '') {
       </head>
       <body>
         <div id="react-view">${componentHTML}</div>
+        <script type="application/javascript">
+          window.REDUX_INITIAL_STATE = ${JSON.stringify(initialState)};
+        </script>
         <script src="${assetUrl}" defer></script>
       </body>
     </html>
