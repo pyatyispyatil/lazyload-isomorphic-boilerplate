@@ -1,7 +1,6 @@
-import { call, fork } from 'redux-saga/effects';
+import { fork } from 'redux-saga/effects';
 
 import {initPage} from './pageSaga';
-import {serverWatcher} from './serverSaga';
 
 
 export default function * () {
