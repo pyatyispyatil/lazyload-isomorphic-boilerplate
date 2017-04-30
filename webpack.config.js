@@ -1,28 +1,37 @@
-var path = require('path');
-var webpack = require('webpack');
-var precss = require('precss');
-var autoprefixer = require('autoprefixer');
-var production = process.env.NODE_ENV === 'production';
-var CleanWebpackPlugin = require('clean-webpack-plugin');
+const path = require('path');
+const webpack = require('webpack');
+const precss = require('precss');
+const autoprefixer = require('autoprefixer');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 
+
+const production = process.env.NODE_ENV === 'production';
 
 module.exports = function (env = {}) {
-  const isProd = !!env.prod;
-  const buildType = env.type;
-  const devServer = !!env.devServer;
+  const IS_PROD = !!env.PROD;
+  const BUILD_TYPE = env.BUILD_TYPE;
+  const DEV_SERVER = !!env.DEV_SERVER;
 
-  console.log(isProd ? 'Production build' : 'Development build');
-  console.log('Build type: ', buildType);
+  console.log(IS_PROD ? 'Production build' : 'Development build');
+  console.log('Build type: ', BUILD_TYPE);
 
   const plugins = [
-    new CleanWebpackPlugin(['build/' + buildType], {
+    new CleanWebpackPlugin(['build/' + BUILD_TYPE], {
       root: path.resolve(__dirname, './'),
       verbose: true,
       dry: false
+    }),
+    new webpack.DefinePlugin({
+      __SERVER__: !production,
+      __DEVELOPMENT__: !production,
+      __DEVTOOLS__: !production,
+      'process.env': {
+        WHO_I_AM: JSON.stringify(BUILD_TYPE)
+      }
     })
   ];
 
-  if (isProd && buildType !== 'server') {
+  if (IS_PROD && BUILD_TYPE !== 'server') {
     plugins.push(
       new webpack.optimize.UglifyJsPlugin({
         mangle: false,
@@ -42,8 +51,8 @@ module.exports = function (env = {}) {
 
   let entry, target, rules = [];
 
-  if (buildType === 'server') {
-    entry = {server: ['./server/index.js']};
+  if (BUILD_TYPE === 'server') {
+    entry = {server: ['babel-polyfill', './server/index.js']};
     target = 'node';
 
     rules = rules.concat([{
@@ -81,14 +90,14 @@ module.exports = function (env = {}) {
     test: /\.scss$/,
     use: [
       {loader: "style-loader"},
-      {loader: "css-loader" + (isProd ? '?sourceMap' : '')},
+      {loader: "css-loader" + (IS_PROD ? '?sourceMap' : '')},
       {
         loader: "postcss-loader",
         options: {
           plugins: () => [precss, autoprefixer]
         }
       },
-      {loader: "sass-loader" + (isProd ? '?sourceMap' : '')}
+      {loader: "sass-loader" + (IS_PROD ? '?sourceMap' : '')}
     ]
   }, {
     test: /\.json$/,
@@ -98,14 +107,14 @@ module.exports = function (env = {}) {
   let config = {
     entry,
     output: {
-      path: path.join(__dirname, './build/' + buildType),
+      path: path.join(__dirname, './build/' + BUILD_TYPE),
       filename: 'index.js',
       chunkFilename: '[name]-[chunkhash].js',
-      publicPath: devServer ? 'http://localhost:8080/static/' : '/static/',
+      publicPath: DEV_SERVER ? 'http://localhost:8080/static/' : '/static/',
     },
     devServer: {
-      contentBase: path.resolve(__dirname, './build/' + buildType),
-      inline: !isProd
+      contentBase: path.resolve(__dirname, './build/' + BUILD_TYPE),
+      inline: !IS_PROD
     },
     stats: {
       colors: true,
@@ -121,7 +130,7 @@ module.exports = function (env = {}) {
     target
   };
 
-  if (!isProd) {
+  if (!IS_PROD) {
     config.devtool = 'source-map';
   }
 

@@ -2,6 +2,9 @@ import {applyMiddleware, compose} from 'redux';
 import {routerMiddleware} from 'react-router-redux';
 import history from './history';
 
+import api from './../api/api';
+
+
 const composeEnhancers =
   typeof window === 'object' &&
   window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?

@@ -28,25 +28,37 @@ function getLazyRoutes(routes, fullPath) {
 }
 
 export function makeRoutes(routes = [], parentPath = '') {
-  return routes.map(({path, component, children, lazy}) => (
-    <Route
-      path={`${parentPath}${path}`}
+  return routes.map(({path, component, children, lazy}) => {
+    const fullPath = `${parentPath}${path}`;
+    const endedFullPath = `${fullPath}${parentPath ? '/' : ''}`;
+
+    return (
+      <Route
+      path={fullPath}
       component={(props) =>
         lazy ? (
-          <Loader load={component}>
+          <Loader load={component} path={fullPath}>
             {(module) => module ? (
-              ((Module) => (<Module {...props}>{makeRoutes(children, `${parentPath}${path}/`)}</Module>))(module)
+              ((Module) => (
+                <Module {...props}>
+                  {makeRoutes(children, endedFullPath)}
+                </Module>
+              ))(module)
             ) : (
               null
             )}
           </Loader>
         ) : (
           ((Component) => (
-            <Component {...props}>{makeRoutes(children, `${parentPath}${path}/`)}</Component>))(component)
+            <Component {...props}>
+              {makeRoutes(children, endedFullPath)}
+            </Component>
+          ))(component)
         )
       }
     />
-  ))
+    )
+  });
 }
 
 //ToDo: don't mutate the routes

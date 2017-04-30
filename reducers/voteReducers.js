@@ -1,20 +1,27 @@
-import * as vote from '../actions/voteActions'
+import * as vote from '../actions/voteActions';
+import makeReducers from './../utils/makeReducers';
+
 const initialState = {
   rating: 0
 };
 
-export default function voteReducers(state = initialState, action) {
-  switch (action.type) {
-    case vote.action.INCREMENT: {
-      return vote.increment(state);
-    }
-    case vote.action.DECREMENT: {
-      return vote.decrement(state);
-    }
-    case vote.action.RESET: {
-      return vote.reset(state);
-    }
-    default:
-      return state;
-  }
-}
+export default makeReducers({
+  [vote.actions.INCREMENT](state, action) {
+    return {
+      ...state,
+      rating: state.rating + 1
+    };
+  },
+  [vote.actions.DECREMENT](state, action) {
+    return {
+      ...state,
+      rating: state.rating - 1
+    };
+  },
+  [vote.actions.RESET](state, action) {
+    return {
+      ...state,
+      rating: 0
+    };
+  },
+}, initialState);

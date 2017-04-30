@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/server';
 import {StaticRouter} from 'react-router';
 import {Provider} from 'react-redux';
 
-import routes from './routes';
+import {routes, cleanRoutes} from './routes';
 
 export const markup = (url, context, store) => ReactDOM.renderToString(
   <Provider store={store}>

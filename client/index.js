@@ -6,8 +6,15 @@ import {Provider} from 'react-redux';
 import history from './history';
 import routes from './../config/routes';
 import store from './stores/store';
+import * as page from './../actions/pageActions';
 import {initLazyRoutes, makeRoutes} from './utils/lazyRoutes';
 
+history.listen(({pathname}) => store.dispatch({
+  type: page.actions.START_LOADING,
+  payload: {
+    path: pathname
+  }
+}));
 
 function render() {
   ReactDOM.render(

@@ -4,7 +4,7 @@ import VoteContainer from './../pages/Vote';
 
 export default [
   {
-    path: '',
+    path: '/',
     component: App,
     children: [
       {
@@ -13,7 +13,7 @@ export default [
         lazy: true,
         children: [
           {
-            path: 'vote',
+            path: 'vote/:item',
             component: VoteContainer,
             lazy: true
           }

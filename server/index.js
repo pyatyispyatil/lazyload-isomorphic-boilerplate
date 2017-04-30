@@ -1,8 +1,14 @@
 import express  from 'express';
 import React    from 'react';
+import {applyMiddleware} from 'redux'
+import createSagaMiddleware from 'redux-saga'
+
+import {markup, renderHTML} from './../server/render';
+import * as page from './../actions/pageActions';
+import rootSaga from './../sagas';
+
 import configureStore from '../stores/configureStore';
 
-import {markup, renderHTML} from './render';
 
 require('source-map-support').install({
   handleUncaughtExceptions: false,
@@ -14,23 +20,54 @@ const app = express();
 
 app.use('/static', express.static('build/client'));
 
-app.get(/^(?:(?!\/?static)(?:.*))$/, (req, res) => {
-  const context = {};
-  const store = configureStore();
+app.get(/^(?:(?!\/?static|\/?api)(?:.*))$/, (req, res) => {
+  const sagaMiddleware = createSagaMiddleware();
+  const store = configureStore({}, applyMiddleware(sagaMiddleware));
+  sagaMiddleware.run(rootSaga);
 
-  store.dispatch({type: 'INCREMENT'});
+  const unsubscribe = store.subscribe(() => {
+    const state = store.getState();
 
-  const html = markup(req.url, context, store);
+    if (state.page.loading === false) {
+      const context = {};
 
-  if (context.url) {
-    res.writeHead(301, {
-      Location: context.url
-    });
-    res.end()
-  } else {
-    res.write(renderHTML(html, store.getState()));
-    res.end()
-  }
+      const html = markup(req.path, context, store);
+
+      if (context.url) {
+        res.writeHead(301, {
+          Location: context.url
+        });
+        res.end()
+      } else {
+        res.write(renderHTML(html, state));
+        res.end();
+      }
+
+      unsubscribe();
+    }
+  });
+
+  store.dispatch({
+    type: page.actions.START_LOADING,
+    payload: {
+      path: req.path
+    }
+  });
+});
+
+app.get('/api/catalog', (req, res) => {
+  res.write(JSON.stringify([{
+    label: 'test_1'
+  }, {
+    label: 'test_2'
+  }, {
+    label: 'test_3'
+  }]));
+  res.end();
+});
+
+process.on('uncaughtException', function (err) {
+  console.log(err);
 });
 
 const PORT = process.env.PORT || 3001;
