@@ -2,7 +2,7 @@ import * as page from '../actions/pageActions';
 import makeReducers from './../utils/makeReducers';
 
 const initialState = {
-  path: [],
+  path: '',
   loading: false
 };
 
@@ -11,6 +11,7 @@ export default makeReducers({
     return {
       ...state,
       path: action.payload.path,
+      prevPath: state.path,
       loading: true
     };
   },
