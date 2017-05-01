@@ -57,17 +57,24 @@ app.get(/^(?:(?!\/?static|\/?api)(?:.*))$/, (req, res) => {
 
 app.get('/api/catalog', (req, res) => {
   res.write(JSON.stringify([{
-    label: 'test_1'
+    label: 'test_1',
+    id: 1
   }, {
-    label: 'test_2'
+    label: 'test_2',
+    id: 2
   }, {
-    label: 'test_3'
+    label: 'test_3',
+    id: 3
   }]));
   res.end();
 });
 
-process.on('uncaughtException', function (err) {
-  console.log(err);
+app.get('/api/vote', (req, res) => {
+  res.write(JSON.stringify({
+    rating: req.query.id*4,
+    id: +req.query.id
+  }));
+  res.end();
 });
 
 const PORT = process.env.PORT || 3001;

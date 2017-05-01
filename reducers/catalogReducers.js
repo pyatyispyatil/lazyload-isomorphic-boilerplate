@@ -19,6 +19,6 @@ export default  makeReducers({
     };
   },
   [catalog.actions.RESET](state, action) {
-    return initialState;
+    return {...initialState};
   }
 }, initialState);

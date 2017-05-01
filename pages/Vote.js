@@ -1,21 +1,21 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
-import {action} from '../actions/voteActions';
+import * as vote from '../actions/voteActions';
 
 class Vote extends Component {
   render() {
     return (
-      <div>
-        <div style={{
-          width: '100px',
-          height: '100px',
+      <span>
+        <span style={{
           border: '1px solid black',
-          fontSize: '40px'
-        }}>{this.props.vote.rating}</div>
+          padding: '0 10px',
+          lineHeight: '100%',
+          marginLeft: '10px'
+        }}>{this.props.vote.rating}</span>
         <button onClick={this.props.onIncrement}>+</button>
         <button onClick={this.props.onDecrement}>-</button>
         <button onClick={this.props.onReset}>reset</button>
-      </div>
+      </span>
     );
   }
 }
@@ -24,9 +24,9 @@ export default connect(
   (state) => state,
   (dispatch) => {
     return ({
-      onIncrement: () => dispatch({type: action.INCREMENT}),
-      onDecrement: () => dispatch({type: action.DECREMENT}),
-      onReset: () => dispatch({type: action.RESET})
+      onIncrement: () => dispatch({type: vote.actions.INCREMENT}),
+      onDecrement: () => dispatch({type: vote.actions.DECREMENT}),
+      onReset: () => dispatch({type: vote.actions.RESET})
     })
   }
 )(Vote);

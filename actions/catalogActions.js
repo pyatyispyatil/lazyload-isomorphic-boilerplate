@@ -1,5 +1,5 @@
 export const actions = {
-  ADD: 'ADD',
-  REMOVE: 'REMOVE',
-  RESET: 'RESET'
+  ADD: 'CATALOG_ADD',
+  REMOVE: 'CATALOG_REMOVE',
+  RESET: 'CATALOG_RESET'
 };

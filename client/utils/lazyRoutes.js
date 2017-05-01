@@ -21,7 +21,7 @@ function getLazyRoutes(routes, fullPath) {
       lazyRoutes.push(currentRoute);
     }
 
-    return currentRoute ? currentRoute.children : [];
+    return currentRoute && currentRoute.children ? currentRoute.children : [];
   }, routes);
 
   return lazyRoutes;

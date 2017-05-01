@@ -2,7 +2,8 @@ import * as vote from '../actions/voteActions';
 import makeReducers from './../utils/makeReducers';
 
 const initialState = {
-  rating: 0
+  rating: 0,
+  id: 0
 };
 
 export default makeReducers({
@@ -22,6 +23,12 @@ export default makeReducers({
     return {
       ...state,
       rating: 0
+    };
+  },
+  [vote.actions.SET](state, action) {
+    return {
+      ...state,
+      ...action.payload
     };
   },
 }, initialState);

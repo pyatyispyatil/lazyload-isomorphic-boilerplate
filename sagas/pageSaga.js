@@ -1,6 +1,7 @@
-import {put, takeEvery, call} from 'redux-saga/effects';
+import {put, takeEvery, fork, call} from 'redux-saga/effects';
 import * as page from './../actions/pageActions';
 import * as catalog from './../actions/catalogActions';
+import * as vote from './../actions/voteActions';
 import api from './../api/api';
 
 import routes from './../config/routes';
@@ -12,19 +13,28 @@ export function * initPage() {
 }
 
 function * onStartLoading(action) {
-  const {path, params} = parsePath(routes, action.payload.path);
+  const {path, params, entryPaths} = parsePath(routes, action.payload.path);
 
-  console.log('startLoading:', path, params);
-  if (handlers[path]) {
-    yield call(handlers[path], params);
+
+  for (let i = 0, len = entryPaths.length; i < len; i++) {
+    if (handlers[entryPaths[i]]) {
+      yield fork(handlers[entryPaths[i]]);
+    }
   }
 
+  if (handlers[path]) {
+    yield fork(handlers[path], params);
+  }
+
+  yield call(endLoading);
+}
+
+function * endLoading() {
   yield put({type: page.actions.END_LOADING});
 }
 
 const handlers = {
   'catalog': function * loadCatalog(params) {
-    console.log('loadCatalog');
     try {
       const data = yield api.catalog.get();
 
@@ -33,38 +43,55 @@ const handlers = {
     } catch (error) {
       console.log(error);
     }
+  },
+  'vote': function * loadVote(params) {
+    try {
+      const data = yield api.catalog.vote({id: parseInt(params.item)});
+
+      yield put({type: vote.actions.SET, payload: data});
+    } catch (error) {
+      console.log(error);
+    }
   }
 };
 
 
 //ToDo: refactoring
-function parsePath(routes, path) {
-  const splitedPath = ['/'].concat(path.split('/').filter(Boolean));
+function parsePath(routes, fullPath) {
+  const splitedPath = ['/'].concat(fullPath.split('/').filter(Boolean));
 
-  const routeData = splitedPath.reduce((result, path) => {
-    const route = result.routes.find((route) => route.path.indexOf(path) === 0);
+  const {path, params, entryPaths} = splitedPath.reduce((result, path) => {
+    const route = result.route.children ? (
+      result.route.children.find((route) => route.path.indexOf(path) === 0)
+    ) : null;
+
     if (route) {
       return {
-        routes: route && route.children ? route.children : [],
-        parent: route,
-        params: {},
+        route,
+        entryPaths: [...result.entryPaths, path],
         path
       };
     } else {
-      const parentQuery = result.parentQuery ? result.parentQuery : result.parent.path.split('/:').splice(1);
-      const currentParam = parentQuery.shift();
+      const query = result.query || result.route.path.split('/:').splice(1);
+      const currentParam = query.shift();
 
       return {
-        routes: [],
-        parent: result.parent,
-        parentQuery: parentQuery,
-        params: {...result.params, [currentParam]: path},
-        path: result.path
+        ...result,
+        query,
+        params: {
+          ...(result.params || {}),
+          [currentParam]: path
+        }
       }
     }
   }, {
-    routes
+    route: {children: routes},
+    entryPaths: []
   });
 
-  return {path: routeData.path, params: routeData.params};
+  return {
+    path,
+    params: params || {},
+    entryPaths: entryPaths.slice(0, -1)
+  };
 }

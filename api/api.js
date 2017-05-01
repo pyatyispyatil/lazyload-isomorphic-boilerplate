@@ -9,7 +9,8 @@ const makeRequest = (url, type = 'post') => (data) => new Promise((resolve, reje
     method: type,
     baseURL: API_SERVER,
     url: url,
-    data: data || {},
+    data: type === 'get' ? {} : data,
+    params: type === 'get' ? data : {},
     dataType: 'json',
     responseType: 'json'
   })
@@ -19,6 +20,7 @@ const makeRequest = (url, type = 'post') => (data) => new Promise((resolve, reje
 
 export default {
   catalog: {
-    get: makeRequest('/catalog', 'get')
+    get: makeRequest('/catalog', 'get'),
+    vote: makeRequest('/vote', 'get')
   }
 };

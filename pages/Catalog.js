@@ -1,17 +1,21 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
+import {Link} from 'react-router-dom';
 
 class Catalog extends Component {
   render() {
-    console.log('catalog props:', this.props.catalog);
     return (
       <div>
         <h2>Catalog</h2>
         <ol>
-          {this.props.catalog.items.map((item) => <li>{item.label}</li>)}
+          {this.props.catalog.items.map((item) =>
+            <li>
+              <Link to={`/catalog/vote/${item.id}`}>{item.label}</Link>
+              {this.props.vote.id === item.id ? this.props.children : null}
+            </li>
+          )}
         </ol>
         <hr/>
-        {this.props.children}
       </div>
     )
   }
