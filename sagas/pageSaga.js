@@ -1,4 +1,4 @@
-import {put, takeEvery, fork, call} from 'redux-saga/effects';
+import {put, takeEvery, fork, call, all} from 'redux-saga/effects';
 import * as page from './../actions/pageActions';
 import * as catalog from './../actions/catalogActions';
 import * as vote from './../actions/voteActions';
@@ -15,16 +15,12 @@ export function * initPage() {
 function * onStartLoading(action) {
   const {path, params, entryPaths} = parsePath(routes, action.payload.path);
 
+  const forks = entryPaths
+    .map((entry) => handlers[entry] ? () => call(handlers[entry]) : null)
+    .concat(handlers[path] ? () => call(handlers[path], params) : [])
+    .filter(Boolean);
 
-  for (let i = 0, len = entryPaths.length; i < len; i++) {
-    if (handlers[entryPaths[i]]) {
-      yield fork(handlers[entryPaths[i]]);
-    }
-  }
-
-  if (handlers[path]) {
-    yield fork(handlers[path], params);
-  }
+  yield all(forks.map((handler) => handler()));
 
   yield call(endLoading);
 }
