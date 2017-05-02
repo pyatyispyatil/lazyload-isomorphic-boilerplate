@@ -7,7 +7,7 @@
     "dev-server:client": "webpack-dev-server --env.BUILD_TYPE=client --env.DEV_SERVER --watch --progress",
     "dev-server:server": "webpack --env.BUILD_TYPE=server --watch --progress",
     "build:server": "webpack --env.BUILD_TYPE=server --progress",
-    "build:client": "webpack --env.BUILT_TYPE=client --progress",
+    "build:client": "webpack --env.BUILD_TYPE=client --progress",
     "build:server-prod": "npm run flow && webpack --env.BUILD_TYPE=server --env.PROD --progress",
     "build:client-prod": "npm run flow && webpack --env.BUILD_TYPE=client --env.PROD --progress",
     "build-prod": "npm run build:server-prod && npm run build:client-prod",
